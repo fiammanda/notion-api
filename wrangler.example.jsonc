@@ -1,15 +1,18 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "notion",
   "main": "src/index.ts",
-  "compatibility_date": "2025-07-30",
-  "workers_dev": true,
+  "compatibility_date": "2025-08-01",
   "account_id": "",
-  "routes": [
-    {
-      "pattern": "",
-      "custom_domain": true
-    }
-  ],
+  "workers_dev": false,
+  "dev": {
+    "ip": "0.0.0.0",
+    "port": 1
+  },
+  "route": {
+    "pattern": "notion.example.com/*",
+    "zone_name": "example.com",
+  },
   "vars": {
     "KEY": "",
     "NOTION_TOKEN": "",

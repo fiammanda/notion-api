@@ -6,12 +6,14 @@ Provides fast and easy access to your Notion content. Ideal to make Notion your 
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Ffiammanda%2Fnotion-api)
 
+## Scripts
+
+- Install: `bun install`
+- Typecheck: `bun tsc`
+- Develop: `wrangler dev`
+- Deploy: `wrangler deploy`
+
 ## Endpoints
 
-### Load page
-
-`/page/<PAGE_ID>`
-
-### Load database
-
-`/table/<PAGE_ID>`
+- Load page: `/page/<ID>`
+- Load database: `/list/<ID>`

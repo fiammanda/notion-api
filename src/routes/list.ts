@@ -1,12 +1,17 @@
-import { fetchPageById, fetchTableData, fetchNotionUsers } from "../api/notion";
-import { parsePageId, getNotionValue } from "../api/utils";
+import {
+  fetchPageById,
+  fetchTableData,
+  fetchNotionUsers,
+} from "../api/notion.js";
+import { parsePageId, getNotionValue } from "../api/utils.js";
 import {
   RowContentType,
   CollectionType,
   RowType,
   HandlerRequest,
-} from "../api/types";
-import { createResponse } from "../response";
+} from "../api/types.js";
+import { createResponse } from "../utils/response.js";
+import { getNotionToken } from "../utils/index.js";
 
 export const getTableData = async (
   collection: CollectionType,
@@ -23,9 +28,10 @@ export const getTableData = async (
   const collectionRows = collection.value.schema;
   const collectionColKeys = Object.keys(collectionRows);
 
-  const tableArr: RowType[] = table.result.reducerResults.collection_group_results.blockIds.map(
-    (id: string) => table.recordMap.block[id]
-  );
+  const tableArr: RowType[] = table.result.reducerResults.collection_group_results.blockIds.flatMap((id: string) => {
+    const v = (table.recordMap.block[id]?.value as any)?.value;
+    return v ? [{ value: v }] : [];
+  });
 
   const tableData = tableArr.filter(
     (b) =>
@@ -56,15 +62,15 @@ export const getTableData = async (
   return { rows, schema: collectionRows };
 };
 
-export async function tableRoute(req: HandlerRequest) {
-  const pageId = parsePageId(req.params.pageId);
-  const page = await fetchPageById(pageId!, req.notionToken);
+export async function listRoute(c: HandlerRequest) {
+  const pageId = parsePageId(c.req.param("id")!);
+  const notionToken = getNotionToken(c);
+  const page = await fetchPageById(pageId!, notionToken);
 
   if (!page.recordMap.collection)
     return createResponse(
       JSON.stringify({ error: "No table found on Notion page: " + pageId }),
-      {},
-      401
+      { headers: {}, statusCode: 401, request: c }
     );
 
   const collection = Object.keys(page.recordMap.collection).map(
@@ -80,8 +86,8 @@ export async function tableRoute(req: HandlerRequest) {
   const { rows } = await getTableData(
     collection,
     collectionView.value.id,
-    req.notionToken
+    notionToken
   );
 
-  return createResponse(rows);
+  return createResponse(rows, { request: c });
 }
