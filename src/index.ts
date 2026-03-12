@@ -14,8 +14,10 @@ app.get("/favicon.ico", (c) => new Response(null))
 app.use("*", async (c, next) => {
   const url = new URL(c.req.url)
   const origin = c.req.header("Origin")
-  const allows = c.env.KEY && url.searchParams.has(c.env.KEY) || origin && c.env.ORIGIN_ALLOW.split(", ").includes(origin)
-  if (!allows) {
+  const allows = c.env.ORIGIN_ALLOW.split(", ")
+  const permit = url.searchParams.has(c.env.KEY) ||
+    origin && (allows.includes(origin) || origin.endsWith(allows[0]))
+  if (!permit) {
     c.status(403)
     return c.json({"error": "forbidden"})
   }
